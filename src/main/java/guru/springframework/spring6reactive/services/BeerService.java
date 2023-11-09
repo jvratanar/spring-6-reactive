@@ -1,7 +1,6 @@
 package guru.springframework.spring6reactive.services;
 
 import guru.springframework.spring6reactive.model.BeerDTO;
-import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
