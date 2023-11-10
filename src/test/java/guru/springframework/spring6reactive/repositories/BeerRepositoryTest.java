@@ -11,13 +11,21 @@ import org.springframework.context.annotation.Import;
 
 import java.math.BigDecimal;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @DataR2dbcTest
 @Import(DatabaseConfig.class)
-class BeerRepositoryTest {
+public class BeerRepositoryTest {
     @Autowired
     BeerRepository beerRepository;
+
+    public static Beer getTestBeer() {
+        return Beer.builder()
+                .beerName("Space Dust")
+                .beerStyle("IPA")
+                .price(BigDecimal.TEN)
+                .quantityOnHand(12)
+                .upc("12321319")
+                .build();
+    }
 
     @Test
     void testCreateJson() throws JsonProcessingException {
@@ -29,15 +37,5 @@ class BeerRepositoryTest {
     void testSaveNewBeer() {
         this.beerRepository.save(getTestBeer())
                 .subscribe(beer -> System.out.println(beer.toString()));
-    }
-
-    Beer getTestBeer() {
-        return Beer.builder()
-                .beerName("Space Dust")
-                .beerStyle("IPA")
-                .price(BigDecimal.TEN)
-                .quantityOnHand(12)
-                .upc("12321319")
-                .build();
     }
 }
