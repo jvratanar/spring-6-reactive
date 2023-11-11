@@ -21,21 +21,25 @@ public class CustomerController {
     @DeleteMapping(CUSTOMER_PATH_ID)
     public Mono<ResponseEntity<Void>> deleteById(@PathVariable("customerId") Integer customerId) {
         return this.customerService.deleteCustomerById(customerId)
-                .map(savedDto -> { return ResponseEntity.noContent().build(); });
+                .thenReturn(ResponseEntity.noContent().build());
     }
 
     @PatchMapping(CUSTOMER_PATH_ID)
     public Mono<ResponseEntity<Void>> patchExistingCustomer(@PathVariable("customerId") Integer customerId,
-                                                             @Validated @RequestBody CustomerDTO customerDTO) {
+                                                            @Validated @RequestBody CustomerDTO customerDTO) {
         return this.customerService.patchCustomer(customerId, customerDTO)
-                .map(savedDto -> { return ResponseEntity.ok().build(); });
+                .map(savedDto -> {
+                    return ResponseEntity.ok().build();
+                });
     }
 
     @PutMapping(CUSTOMER_PATH_ID)
     public Mono<ResponseEntity<Void>> updateExistingCustomer(@PathVariable("customerId") Integer customerId,
                                                              @Validated @RequestBody CustomerDTO customerDTO) {
         return this.customerService.updateCustomer(customerId, customerDTO)
-                .map(savedDto -> { return ResponseEntity.ok().build(); });
+                .map(savedDto -> {
+                    return ResponseEntity.noContent().build();
+                });
     }
 
     @PostMapping(CUSTOMER_PATH)
@@ -45,8 +49,8 @@ public class CustomerController {
                 .map(savedDto -> {
                     return ResponseEntity.created(
                             UriComponentsBuilder.fromHttpUrl(
-                            "http://localhost:8080/" + CUSTOMER_PATH + "/" + savedDto.getId())
-                            .build().toUri()
+                                            "http://localhost:8080/" + CUSTOMER_PATH + "/" + savedDto.getId())
+                                    .build().toUri()
                     ).build();
                 });
     }
