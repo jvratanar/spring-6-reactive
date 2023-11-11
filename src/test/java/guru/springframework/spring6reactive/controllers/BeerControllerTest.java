@@ -1,5 +1,6 @@
 package guru.springframework.spring6reactive.controllers;
 
+import guru.springframework.spring6reactive.domain.Beer;
 import guru.springframework.spring6reactive.model.BeerDTO;
 import guru.springframework.spring6reactive.repositories.BeerRepositoryTest;
 import org.junit.jupiter.api.MethodOrderer;
@@ -28,13 +29,47 @@ class BeerControllerTest {
     }
 
     @Test
-    @Order(3)
-    void testUpdateClient() {
+    void testUpdateClientBadDataNotFound() {
+        this.webTestClient.put().uri(BeerController.BEER_PATH_ID, 999)
+                .body(Mono.just(BeerRepositoryTest.getTestBeer()), BeerDTO.class)
+                .header("Content-Type", "application/json")
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    @Order(4)
+    void testUpdateClientBadData() {
         this.webTestClient.put().uri(BeerController.BEER_PATH_ID, 1)
                 .body(Mono.just(BeerRepositoryTest.getTestBeer()), BeerDTO.class)
                 .header("Content-Type", "application/json")
                 .exchange()
                 .expectStatus().isNoContent();
+    }
+
+    @Test
+    @Order(3)
+    void testUpdateClient() {
+        Beer testBeer = BeerRepositoryTest.getTestBeer();
+        testBeer.setBeerStyle("");
+
+        this.webTestClient.put().uri(BeerController.BEER_PATH_ID, 1)
+                .body(Mono.just(testBeer), BeerDTO.class)
+                .header("Content-Type", "application/json")
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    void testCreateBeerBadData() {
+        Beer testBeer = BeerRepositoryTest.getTestBeer();
+        testBeer.setBeerName("");
+
+        this.webTestClient.post().uri(BeerController.BEER_PATH)
+                .body(Mono.just(testBeer), BeerDTO.class)
+                .header("Content-Type", "application/json")
+                .exchange()
+                .expectStatus().isBadRequest();
     }
 
     @Test
@@ -46,6 +81,13 @@ class BeerControllerTest {
                 .expectStatus().isCreated()
                 .expectHeader().location("http://localhost:8080/api/v2/beer/4");
 
+    }
+
+    @Test
+    void testGetByIdNotFound() {
+        this.webTestClient.get().uri(BeerController.BEER_PATH_ID, 99)
+                .exchange()
+                .expectStatus().isNotFound();
     }
 
     @Test
