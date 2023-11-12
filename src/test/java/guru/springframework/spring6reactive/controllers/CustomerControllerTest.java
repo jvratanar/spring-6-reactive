@@ -26,11 +26,49 @@ class CustomerControllerTest {
     }
 
     @Test
+    void testPatchCustomerNotFound() {
+        this.webTestClient.patch().uri(CustomerController.CUSTOMER_PATH_ID, 999)
+                .body(Mono.just(getTestCustomer()), CustomerDTO.class)
+                .header("Content-Type", "application/json")
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    void testDeleteCustomerNotFound() {
+        this.webTestClient.delete().uri(CustomerController.CUSTOMER_PATH_ID, 999)
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
     @Order(999)
     void testDeleteCustomer() {
         this.webTestClient.delete().uri(CustomerController.CUSTOMER_PATH_ID, 1)
                 .exchange()
                 .expectStatus().isNoContent();
+    }
+
+    @Test
+    @Order(4)
+    void testUpdateCustomerBadRequest() {
+        Customer customer = getTestCustomer();
+        customer.setCustomerName("");
+
+        this.webTestClient.put().uri(CustomerController.CUSTOMER_PATH_ID, 1)
+                .body(Mono.just(customer), CustomerDTO.class)
+                .header("Content-Type", "application/json")
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    void testUpdateCustomerNotFound() {
+        this.webTestClient.put().uri(CustomerController.CUSTOMER_PATH_ID, 999)
+                .body(Mono.just(getTestCustomer()), CustomerDTO.class)
+                .header("Content-Type", "application/json")
+                .exchange()
+                .expectStatus().isNotFound();
     }
 
     @Test
@@ -44,6 +82,18 @@ class CustomerControllerTest {
     }
 
     @Test
+    void testCreateCustomerBadRequest() {
+        Customer customer = getTestCustomer();
+        customer.setCustomerName("");
+
+        this.webTestClient.post().uri(CustomerController.CUSTOMER_PATH)
+                .body(Mono.just(customer), CustomerDTO.class)
+                .header("Content-Type", "application/json")
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
     void testCreateCustomer() {
         this.webTestClient.post().uri(CustomerController.CUSTOMER_PATH)
                 .body(Mono.just(getTestCustomer()), CustomerDTO.class)
@@ -51,6 +101,13 @@ class CustomerControllerTest {
                 .exchange()
                 .expectStatus().isCreated()
                 .expectHeader().location("http://localhost:8080/api/v2/customer/4");
+    }
+
+    @Test
+    void testGetByIdNotFound() {
+        this.webTestClient.get().uri(CustomerController.CUSTOMER_PATH_ID, 999)
+                .exchange()
+                .expectStatus().isNotFound();
     }
 
     @Test
