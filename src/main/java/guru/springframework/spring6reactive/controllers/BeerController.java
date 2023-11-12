@@ -22,7 +22,10 @@ public class BeerController {
 
     @DeleteMapping(BEER_PATH_ID)
     Mono<ResponseEntity<Void>> deleteById(@PathVariable("beerId") Integer beerId) {
-        return this.beerService.deleteBeerById(beerId)
+        return this.beerService
+                .getBeerById(beerId)
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
+                .map(beerDto -> this.beerService.deleteBeerById(beerDto.getId()))
                 .thenReturn(ResponseEntity.noContent().build());
     }
 
@@ -30,6 +33,7 @@ public class BeerController {
     Mono<ResponseEntity<Void>> patchExistingBeer(@PathVariable("beerId") Integer beerId,
                                                  @Validated @RequestBody BeerDTO beerDTO) {
         return this.beerService.patchBeer(beerId, beerDTO)
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
                 .map(updatedDto -> ResponseEntity.ok().build());
     }
 
